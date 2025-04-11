@@ -9,6 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  
+  "homepage": "https://MohamedElkatry.github.io/CinemaPlus",
+
+  
   "dependencies": {
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
