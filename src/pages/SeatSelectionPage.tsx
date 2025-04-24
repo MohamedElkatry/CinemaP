@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useBookings } from '../context/BookingContext';
+import { useUser } from '../context/UserContext';
 import { movies } from '../data/movies';
 import SeatMap from '../components/SeatMap';
 
@@ -14,30 +15,41 @@ interface Seat {
 export default function SeatSelectionPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addBooking } = useBookings();
+  const { addBooking, getBookedSeats } = useBookings();
+  const { isAuthenticated } = useUser();
   const movie = movies.find((m) => m.id === id);
 
   const [seats, setSeats] = useState<Seat[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(`bookedSeats-${id}`);
-    const bookedSeatIds: string[] = stored ? JSON.parse(stored) : [];
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: `/movies/${id}/seats` } });
+      return;
+    }
+
+    const bookedSeats = getBookedSeats(id || '');
 
     const initialSeats: Seat[] = Array.from({ length: 100 }, (_, i) => {
       const seatId = `seat-${i + 1}`;
+      const seatNumber = (i % 10) + 1;
       return {
         id: seatId,
         row: Math.floor(i / 10) + 1,
-        number: (i % 10) + 1,
-        status: bookedSeatIds.includes(seatId) ? 'booked' : 'available',
+        number: seatNumber,
+        status: bookedSeats.includes(seatNumber.toString()) ? 'booked' : 'available',
       };
     });
 
     setSeats(initialSeats);
-  }, [id]);
+  }, [id, isAuthenticated, navigate, getBookedSeats]);
 
   const handleSeatSelect = (seatId: string) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: `/movies/${id}/seats` } });
+      return;
+    }
+
     const seat = seats.find((s) => s.id === seatId);
     if (!seat || seat.status === 'booked') return;
 
@@ -56,7 +68,7 @@ export default function SeatSelectionPage() {
   };
 
   const handleConfirmBooking = () => {
-    if (!movie) return;
+    if (!movie || !isAuthenticated) return;
 
     const booking = {
       id: Date.now().toString(),
@@ -72,17 +84,11 @@ export default function SeatSelectionPage() {
     };
 
     addBooking(booking);
-
-    const stored = localStorage.getItem(`bookedSeats-${movie.id}`);
-    const previousSeats: string[] = stored ? JSON.parse(stored) : [];
-    const updatedSeats = [...new Set([...previousSeats, ...selectedSeats])];
-    localStorage.setItem(`bookedSeats-${movie.id}`, JSON.stringify(updatedSeats));
-
     navigate('/my-tickets');
   };
 
-  if (!movie) {
-    return <div>Movie not found</div>;
+  if (!movie || !isAuthenticated) {
+    return <div>Movie not found or please login first</div>;
   }
 
   return (

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useUser } from './UserContext';
 
 interface Booking {
   id: string;
@@ -8,39 +9,77 @@ interface Booking {
   seats: string[];
   date: string;
   poster: string;
+  userId: string;
 }
 
 interface BookingContextType {
   bookings: Booking[];
-  addBooking: (booking: Booking) => void;
+  addBooking: (booking: Omit<Booking, 'userId'>) => void;
+  deleteBooking: (bookingId: string) => void;
+  getUserBookings: () => Booking[];
+  getBookedSeats: (movieId: string) => string[];
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
 export function BookingProvider({ children }: { children: ReactNode }) {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-
-  // قراءة التذاكر من localStorage عند تحميل الصفحة
-  useEffect(() => {
+  const [bookings, setBookings] = useState<Booking[]>(() => {
     const savedBookings = localStorage.getItem('bookings');
-    if (savedBookings) {
-      setBookings(JSON.parse(savedBookings));
-    }
-  }, []);
+    return savedBookings ? JSON.parse(savedBookings) : [];
+  });
+  const { token } = useUser();
 
   // حفظ التذاكر في localStorage عند التعديل
   useEffect(() => {
-    if (bookings.length > 0) {
-      localStorage.setItem('bookings', JSON.stringify(bookings));
-    }
+    localStorage.setItem('bookings', JSON.stringify(bookings));
   }, [bookings]);
 
-  const addBooking = (booking: Booking) => {
-    setBookings((prev) => [...prev, booking]);
+  const addBooking = (booking: Omit<Booking, 'userId'>) => {
+    if (!token) return;
+    
+    const newBooking = {
+      ...booking,
+      userId: token
+    };
+    
+    setBookings(prev => {
+      const updatedBookings = [...prev, newBooking];
+      localStorage.setItem('bookings', JSON.stringify(updatedBookings));
+      return updatedBookings;
+    });
+  };
+
+  const deleteBooking = (bookingId: string) => {
+    setBookings(prev => {
+      const updatedBookings = prev.filter(booking => booking.id !== bookingId);
+      localStorage.setItem('bookings', JSON.stringify(updatedBookings));
+      return updatedBookings;
+    });
+  };
+
+  const getUserBookings = () => {
+    if (!token) return [];
+    return bookings.filter(booking => booking.userId === token);
+  };
+
+  const getBookedSeats = (movieId: string) => {
+    const movieBookings = bookings.filter(booking => booking.movieId === movieId);
+    const bookedSeats: string[] = [];
+    
+    movieBookings.forEach(booking => {
+      booking.seats.forEach(seat => {
+        const seatNumber = seat.match(/Seat (\d+)/)?.[1];
+        if (seatNumber) {
+          bookedSeats.push(seatNumber);
+        }
+      });
+    });
+    
+    return bookedSeats;
   };
 
   return (
-    <BookingContext.Provider value={{ bookings, addBooking }}>
+    <BookingContext.Provider value={{ bookings, addBooking, deleteBooking, getUserBookings, getBookedSeats }}>
       {children}
     </BookingContext.Provider>
   );

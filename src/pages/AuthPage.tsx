@@ -1,173 +1,161 @@
-import { useState } from 'react';
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
-type AuthMode = 'login' | 'register';
+const AuthPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useUser();
+  const [mode, setMode] = useState<"login" | "register">("login");
 
-export default function AuthPage() {
-  const [mode, setMode] = useState<AuthMode>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  // Register form state
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  const from = (location.state as any)?.from || "/";
 
-      const data = await response.json();
+  const handleSubmit = async () => {
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
 
-      if (!response.ok) {
-        setError(data.message || 'Something went wrong');
-      } else {
-        setError(null);
-        alert('Login successful!');
-      }
-    } catch (error) {
-      setError('Failed to connect to the server');
-    }
-  };
+    const url =
+      mode === "login"
+        ? "http://authtest.duckdns.org/api/auth/login"
+        : "http://authtest.duckdns.org/api/auth/register";
 
-  const handleRegister = async () => {
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-    if (!validatePassword(password)) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
+    const payload =
+      mode === "login"
+        ? { email: loginEmail, password: loginPassword }
+        : {
+            username: registerName,
+            email: registerEmail,
+            password: registerPassword,
+          };
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || 'Something went wrong');
-      } else {
-        setError(null);
-        alert('Account created successfully!');
+      
+      if (response.status === 409) {
+        setError("Email already exists");
+        return;
       }
-    } catch (error) {
-      setError('Failed to connect to the server');
-    }
-  };
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password: string) => {
-    return password.length >= 6;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mode === 'login') {
-      handleLogin();
-    } else if (mode === 'register') {
-      handleRegister();
+      
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.message || "Something went wrong");
+      } else {
+        setSuccess(mode === "login" ? "Login successful!" : "Account created!");
+        // Use the token and username from the response
+        login(data.token, mode === "login" ? data.username : registerName);
+        navigate(from, { replace: true });
+      }
+    } catch (err) {
+      setError("Failed to connect to the server");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-lg shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-            {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
-          </h2>
-
-          <div className="mt-4 flex justify-center">
-            <div className="flex rounded-md shadow-sm" role="group">
-              <button
-                onClick={() => setMode('login')}
-                className={`px-4 py-2 text-sm font-medium rounded-l-lg ${mode === 'login' ? 'bg-red-600 text-white' : 'bg-gray-700 text-white hover:bg-red-500'}`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setMode('register')}
-                className={`px-4 py-2 text-sm font-medium rounded-r-lg ${mode === 'register' ? 'bg-red-600 text-white' : 'bg-gray-700 text-white hover:bg-red-500'}`}
-              >
-                Register
-              </button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white px-4">
+      <div className="bg-gray-800 p-8 rounded-lg w-full max-w-md shadow-xl">
+        <h1 className="text-2xl font-bold text-center mb-6">
+          {mode === "login" ? "Login to your account" : "Create a new account"}
+        </h1>
+        
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={() => setMode("login")}
+            className={`px-4 py-2 rounded-l font-medium ${
+              mode === "login" ? "bg-red-600" : "bg-gray-600 hover:bg-gray-500"
+            }`}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => setMode("register")}
+            className={`px-4 py-2 rounded-r font-medium ${
+              mode === "register"
+                ? "bg-red-600"
+                : "bg-gray-600 hover:bg-gray-500"
+            }`}
+          >
+            Register
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          {mode === 'register' && (
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 bg-gray-700 text-white"
-              />
-            </div>
-          )}
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-              Email address
-            </label>
+        {mode === "register" && (
+          <>
             <input
-              id="email"
-              name="email"
+              type="text"
+              placeholder="Username"
+              value={registerName}
+              onChange={(e) => setRegisterName(e.target.value)}
+              className="w-full mb-4 px-4 py-2 rounded bg-gray-700 border border-gray-600"
+            />
+            <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 bg-gray-700 text-white"
+              placeholder="Email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+              className="w-full mb-4 px-4 py-2 rounded bg-gray-700 border border-gray-600"
             />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-              Password
-            </label>
             <input
-              id="password"
-              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 bg-gray-700 text-white"
+              placeholder="Password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+              className="w-full mb-4 px-4 py-2 rounded bg-gray-700 border border-gray-600"
             />
-          </div>
+          </>
+        )}
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+        {mode === "login" && (
+          <>
+            <input
+              type="email"
+              placeholder="Email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              className="w-full mb-4 px-4 py-2 rounded bg-gray-700 border border-gray-600"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              className="w-full mb-4 px-4 py-2 rounded bg-gray-700 border border-gray-600"
+            />
+          </>
+        )}
 
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            {mode === 'login' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
+        {error && <p className="text-red-500 mb-2">{error}</p>}
+        {success && <p className="text-green-500 mb-2">{success}</p>}
+
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-medium disabled:opacity-50"
+        >
+          {loading ? "Please wait..." : mode === "login" ? "Login" : "Register"}
+        </button>
       </div>
     </div>
   );
-}
+};
+
+export default AuthPage;
