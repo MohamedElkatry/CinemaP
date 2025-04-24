@@ -6,7 +6,7 @@ interface Booking {
   movieId: string;
   movieTitle: string;
   showtime: string;
-  seats: string[];
+  seats: string[]; // seat.id list
   date: string;
   poster: string;
   userId: string;
@@ -29,7 +29,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   });
   const { token } = useUser();
 
-  // حفظ التذاكر في localStorage عند التعديل
   useEffect(() => {
     localStorage.setItem('bookings', JSON.stringify(bookings));
   }, [bookings]);
@@ -37,23 +36,19 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const addBooking = (booking: Omit<Booking, 'userId'>) => {
     if (!token) return;
     
-    const newBooking = {
-      ...booking,
-      userId: token
-    };
-    
+    const newBooking = { ...booking, userId: token };
     setBookings(prev => {
-      const updatedBookings = [...prev, newBooking];
-      localStorage.setItem('bookings', JSON.stringify(updatedBookings));
-      return updatedBookings;
+      const updated = [...prev, newBooking];
+      localStorage.setItem('bookings', JSON.stringify(updated));
+      return updated;
     });
   };
 
   const deleteBooking = (bookingId: string) => {
     setBookings(prev => {
-      const updatedBookings = prev.filter(booking => booking.id !== bookingId);
-      localStorage.setItem('bookings', JSON.stringify(updatedBookings));
-      return updatedBookings;
+      const updated = prev.filter(booking => booking.id !== bookingId);
+      localStorage.setItem('bookings', JSON.stringify(updated));
+      return updated;
     });
   };
 
@@ -63,18 +58,11 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   };
 
   const getBookedSeats = (movieId: string) => {
-    const movieBookings = bookings.filter(booking => booking.movieId === movieId);
+    const movieBookings = bookings.filter(b => b.movieId === movieId);
     const bookedSeats: string[] = [];
-    
     movieBookings.forEach(booking => {
-      booking.seats.forEach(seat => {
-        const seatNumber = seat.match(/Seat (\d+)/)?.[1];
-        if (seatNumber) {
-          bookedSeats.push(seatNumber);
-        }
-      });
+      booking.seats.forEach(seatId => bookedSeats.push(seatId));
     });
-    
     return bookedSeats;
   };
 
@@ -87,8 +75,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
 export function useBookings() {
   const context = useContext(BookingContext);
-  if (context === undefined) {
-    throw new Error('useBookings must be used within a BookingProvider');
-  }
+  if (!context) throw new Error('useBookings must be used within a BookingProvider');
   return context;
 }

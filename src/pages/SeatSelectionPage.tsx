@@ -37,7 +37,7 @@ export default function SeatSelectionPage() {
         id: seatId,
         row: Math.floor(i / 10) + 1,
         number: seatNumber,
-        status: bookedSeats.includes(seatNumber.toString()) ? 'booked' : 'available',
+        status: bookedSeats.includes(seatId) ? 'booked' : 'available',
       };
     });
 
@@ -75,10 +75,7 @@ export default function SeatSelectionPage() {
       movieId: movie.id,
       movieTitle: movie.title,
       showtime: movie.showtimes[0],
-      seats: selectedSeats.map((seatId) => {
-        const seat = seats.find((s) => s.id === seatId);
-        return `Row ${seat?.row}, Seat ${seat?.number}`;
-      }),
+      seats: selectedSeats,
       date: new Date().toISOString(),
       poster: movie.poster,
     };
