@@ -20,7 +20,6 @@ export default function SeatSelectionPage() {
   const [seats, setSeats] = useState<Seat[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
 
-  // ⬇️ تحميل المقاعد المحجوزة من localStorage
   useEffect(() => {
     const stored = localStorage.getItem(`bookedSeats-${id}`);
     const bookedSeatIds: string[] = stored ? JSON.parse(stored) : [];
@@ -59,7 +58,6 @@ export default function SeatSelectionPage() {
   const handleConfirmBooking = () => {
     if (!movie) return;
 
-    // 1. حفظ بيانات الحجز
     const booking = {
       id: Date.now().toString(),
       movieId: movie.id,
@@ -75,13 +73,11 @@ export default function SeatSelectionPage() {
 
     addBooking(booking);
 
-    // 2. حفظ المقاعد المحجوزة في localStorage
     const stored = localStorage.getItem(`bookedSeats-${movie.id}`);
     const previousSeats: string[] = stored ? JSON.parse(stored) : [];
     const updatedSeats = [...new Set([...previousSeats, ...selectedSeats])];
     localStorage.setItem(`bookedSeats-${movie.id}`, JSON.stringify(updatedSeats));
 
-    // 3. الذهاب إلى صفحة التذاكر
     navigate('/my-tickets');
   };
 
@@ -90,10 +86,10 @@ export default function SeatSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen bg-gray-900 py-8">
       <div className="container mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-center mb-8">Select Your Seats</h1>
+          <h1 className="text-3xl font-bold text-center mb-8 text-[#1E3A8A]">Select Your Seats</h1>
 
           <div className="mb-8">
             <div className="w-full max-w-3xl mx-auto bg-gray-900 h-2 rounded-lg mb-8" />
@@ -103,14 +99,14 @@ export default function SeatSelectionPage() {
           </div>
 
           <div className="mt-8">
-            <h2 className="text-xl font-bold mb-4">Selected Seats</h2>
+            <h2 className="text-xl font-bold mb-4 text-[#1E3A8A]">Selected Seats</h2>
             <div className="flex flex-wrap gap-2">
               {selectedSeats.map((seatId) => {
                 const seat = seats.find((s) => s.id === seatId);
                 return (
                   <span
                     key={seatId}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    className="px-3 py-1 bg-[#FFD700] text-[#1E3A8A] rounded-full text-sm"
                   >
                     Row {seat?.row}, Seat {seat?.number}
                   </span>
@@ -121,7 +117,7 @@ export default function SeatSelectionPage() {
 
           <button
             onClick={handleConfirmBooking}
-            className="mt-8 w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="mt-8 w-full bg-[#1E3A8A] text-white py-3 rounded-lg hover:bg-[#0C2C6C] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             disabled={selectedSeats.length === 0}
           >
             Confirm Booking ({selectedSeats.length} seats)

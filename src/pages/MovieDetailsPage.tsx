@@ -30,9 +30,9 @@ export default function MovieDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <div className="md:flex">
             <img
               src={movie.poster}
@@ -40,27 +40,27 @@ export default function MovieDetailsPage() {
               className="w-full md:w-1/3 object-cover"
             />
             <div className="p-6 md:w-2/3">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl font-bold text-white mb-4">
                 {movie.title}
               </h1>
               
               <div className="flex items-center mb-4">
                 <StarRating rating={movie.rating} readonly />
-                <span className="ml-2 text-gray-600">
+                <span className="ml-2 text-gray-400">
                   ({movie.rating} / 5)
                 </span>
               </div>
 
               <div className="flex items-center space-x-4 mb-4">
                 <div className="flex items-center">
-                  <Clock className="h-5 w-5 text-gray-500 mr-1" />
+                  <Clock className="h-5 w-5 text-gray-400 mr-1" />
                   <span>{movie.duration}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   {movie.genre.map((g) => (
                     <span
                       key={g}
-                      className="px-3 py-1 bg-gray-200 rounded-full text-sm"
+                      className="px-3 py-1 bg-gray-700 rounded-full text-sm text-gray-300"
                     >
                       {g}
                     </span>
@@ -68,7 +68,7 @@ export default function MovieDetailsPage() {
                 </div>
               </div>
 
-              <p className="text-gray-600 mb-6">{movie.description}</p>
+              <p className="text-gray-300 mb-6">{movie.description}</p>
 
               <h2 className="text-xl font-bold mb-4">Available Showtimes</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -90,7 +90,7 @@ export default function MovieDetailsPage() {
               <button
                 onClick={() => selectedShowtime && navigate(`/movies/${id}/seats`)}
                 disabled={!selectedShowtime}
-                className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
               >
                 Choose Seats
               </button>
@@ -99,13 +99,13 @@ export default function MovieDetailsPage() {
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <div className="mt-8 bg-gray-800 rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-6">Reviews</h2>
           
           {/* Add Review Form */}
           <form onSubmit={handleSubmitReview} className="mb-8">
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Your Rating
               </label>
               <StarRating
@@ -114,7 +114,7 @@ export default function MovieDetailsPage() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Your Review
               </label>
               <textarea
@@ -122,7 +122,7 @@ export default function MovieDetailsPage() {
                 onChange={(e) =>
                   setNewReview((prev) => ({ ...prev, comment: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-700 text-white"
                 rows={3}
               />
             </div>
@@ -144,7 +144,7 @@ export default function MovieDetailsPage() {
                     <StarRating rating={review.rating} readonly />
                   </div>
                 </div>
-                <p className="text-gray-600">{review.comment}</p>
+                <p className="text-gray-400">{review.comment}</p>
               </div>
             ))}
           </div>

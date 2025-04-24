@@ -5,12 +5,12 @@ export default function MyTicketsPage() {
   const { bookings } = useBookings();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Tickets</h1>
+        <h1 className="text-3xl font-bold text-white mb-8">My Tickets</h1>
         
         {bookings.length === 0 ? (
-          <div className="text-center text-gray-500">
+          <div className="text-center text-gray-400">
             No tickets booked yet.
           </div>
         ) : (
@@ -18,7 +18,7 @@ export default function MyTicketsPage() {
             {bookings.map((booking) => (
               <div
                 key={booking.id}
-                className="bg-white rounded-lg shadow-lg overflow-hidden"
+                className="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="md:flex">
                   <img
@@ -30,10 +30,10 @@ export default function MyTicketsPage() {
                   <div className="p-6 flex-grow">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">
+                        <h2 className="text-xl font-bold text-white mb-2">
                           {booking.movieTitle}
                         </h2>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-gray-400 mb-4">
                           {new Date(booking.date).toLocaleDateString()} at{' '}
                           {booking.showtime}
                         </p>
@@ -41,7 +41,7 @@ export default function MyTicketsPage() {
                           {booking.seats.map((seat) => (
                             <span
                               key={seat}
-                              className="px-3 py-1 bg-gray-200 rounded-full text-sm"
+                              className="px-3 py-1 bg-gray-700 rounded-full text-sm text-gray-300"
                             >
                               {seat}
                             </span>
@@ -50,8 +50,8 @@ export default function MyTicketsPage() {
                       </div>
                       
                       <div className="flex flex-col items-center">
-                        <QrCode className="h-24 w-24 text-gray-900" />
-                        <span className="mt-2 text-sm text-gray-500">
+                        <QrCode className="h-24 w-24 text-red-500" />
+                        <span className="mt-2 text-sm text-gray-400">
                           #{booking.id}
                         </span>
                       </div>

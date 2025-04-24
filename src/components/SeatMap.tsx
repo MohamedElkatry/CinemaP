@@ -18,11 +18,11 @@ export default function SeatMap({ seats, onSeatSelect }: SeatMapProps) {
   const getStatusColor = (status: Seat['status']) => {
     switch (status) {
       case 'available':
-        return 'bg-green-500 hover:bg-green-600';
+        return 'bg-blue-500 hover:bg-blue-600';
       case 'booked':
         return 'bg-red-500 cursor-not-allowed';
       case 'selected':
-        return 'bg-blue-500';
+        return 'bg-gray-900';
       default:
         return 'bg-gray-200';
     }
@@ -59,11 +59,11 @@ export default function SeatMap({ seats, onSeatSelect }: SeatMapProps) {
           <span className="text-sm">Available</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-red-500 rounded mr-2" />
+          <div className="w-4 h-4 bg-blue-500 rounded mr-2" />
           <span className="text-sm">Booked</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 bg-blue-500 rounded mr-2" />
+          <div className="w-4 h-4 bg-gray-900 rounded mr-2" />
           <span className="text-sm">Selected</span>
         </div>
       </div>
