@@ -69,5 +69,5 @@ export const movies = [
     duration: '2h 22min',
     showtimes: ['16:30', '19:00', '22:30'],
     reviews: [],
-  },
+  }
 ];
