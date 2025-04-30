@@ -27,16 +27,16 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     const savedBookings = localStorage.getItem('bookings');
     return savedBookings ? JSON.parse(savedBookings) : [];
   });
-  const { token } = useUser();
+  const { userName } = useUser();
 
   useEffect(() => {
     localStorage.setItem('bookings', JSON.stringify(bookings));
   }, [bookings]);
 
   const addBooking = (booking: Omit<Booking, 'userId'>) => {
-    if (!token) return;
+    if (!userName) return;
     
-    const newBooking = { ...booking, userId: token };
+    const newBooking = { ...booking, userId: userName };
     setBookings(prev => {
       const updated = [...prev, newBooking];
       localStorage.setItem('bookings', JSON.stringify(updated));
@@ -53,8 +53,8 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   };
 
   const getUserBookings = () => {
-    if (!token) return [];
-    return bookings.filter(booking => booking.userId === token);
+    if (!userName) return [];
+    return bookings.filter(booking => booking.userId === userName);
   };
 
   const getBookedSeats = (movieId: string) => {

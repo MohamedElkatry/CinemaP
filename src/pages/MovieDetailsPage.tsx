@@ -29,125 +29,108 @@ export default function MovieDetailsPage() {
     setNewReview({ rating: 0, comment: '' });
   };
 
+  const handleBookNow = () => {
+    if (!selectedShowtime) return;
+    navigate(`/CinemaP/movies/${id}/seats`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-          <div className="md:flex">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
             <img
               src={movie.poster}
               alt={movie.title}
-              className="w-full md:w-1/3 object-cover"
+              className="w-full rounded-lg shadow-xl"
             />
-            <div className="p-6 md:w-2/3">
-              <h1 className="text-3xl font-bold text-white mb-4">
-                {movie.title}
-              </h1>
-              
-              <div className="flex items-center mb-4">
-                <StarRating rating={movie.rating} readonly />
-                <span className="ml-2 text-gray-400">
-                  ({movie.rating} / 5)
-                </span>
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold mb-4">{movie.title}</h1>
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="flex items-center">
+                <Star className="h-5 w-5 text-yellow-500 mr-1" />
+                <span>{movie.rating.toFixed(1)}</span>
               </div>
-
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center">
-                  <Clock className="h-5 w-5 text-gray-400 mr-1" />
-                  <span>{movie.duration}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  {movie.genre.map((g) => (
-                    <span
-                      key={g}
-                      className="px-3 py-1 bg-gray-700 rounded-full text-sm text-gray-300"
-                    >
-                      {g}
-                    </span>
-                  ))}
-                </div>
+              <div className="flex items-center">
+                <Clock className="h-5 w-5 text-gray-400 mr-1" />
+                <span>{movie.duration}</span>
               </div>
-
-              <p className="text-gray-300 mb-6">{movie.description}</p>
-
-              <h2 className="text-xl font-bold mb-4">Available Showtimes</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            </div>
+            <p className="text-gray-300 mb-6">{movie.description}</p>
+            
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-4">Select Showtime</h2>
+              <div className="grid grid-cols-3 gap-4">
                 {movie.showtimes.map((time) => (
                   <button
                     key={time}
                     onClick={() => setSelectedShowtime(time)}
-                    className={`px-4 py-2 border-2 rounded-lg transition-colors ${
+                    className={`px-4 py-2 rounded-lg ${
                       selectedShowtime === time
-                        ? 'bg-red-500 text-white border-red-500'
-                        : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white'
+                        ? 'bg-red-600'
+                        : 'bg-gray-700 hover:bg-gray-600'
                     }`}
                   >
                     {time}
                   </button>
                 ))}
               </div>
-
-              <button
-                onClick={() => selectedShowtime && navigate(`/movies/${id}/seats`)}
-                disabled={!selectedShowtime}
-                className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
-              >
-                Choose Seats
-              </button>
             </div>
+
+            <button
+              onClick={handleBookNow}
+              disabled={!selectedShowtime}
+              className="w-full bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-medium disabled:opacity-50"
+            >
+              Book Now
+            </button>
           </div>
         </div>
 
-        {/* Reviews Section */}
-        <div className="mt-8 bg-gray-800 rounded-lg shadow-lg p-6">
+        <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">Reviews</h2>
-          
-          {/* Add Review Form */}
-          <form onSubmit={handleSubmitReview} className="mb-8">
+          <div className="space-y-6">
+            {movie.reviews.map((review) => (
+              <div key={review.id} className="bg-gray-800 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium">{review.user}</span>
+                  <div className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                    <span>{review.rating}</span>
+                  </div>
+                </div>
+                <p className="text-gray-300">{review.comment}</p>
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmitReview} className="mt-8">
+            <h3 className="text-xl font-bold mb-4">Write a Review</h3>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Your Rating
-              </label>
               <StarRating
                 rating={newReview.rating}
-                onRate={(rating) => setNewReview((prev) => ({ ...prev, rating }))}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Your Review
-              </label>
-              <textarea
-                value={newReview.comment}
-                onChange={(e) =>
-                  setNewReview((prev) => ({ ...prev, comment: e.target.value }))
+                onRatingChange={(rating) =>
+                  setNewReview({ ...newReview, rating })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-700 text-white"
-                rows={3}
               />
             </div>
+            <textarea
+              value={newReview.comment}
+              onChange={(e) =>
+                setNewReview({ ...newReview, comment: e.target.value })
+              }
+              placeholder="Write your review..."
+              className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+              rows={4}
+            />
             <button
               type="submit"
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+              className="mt-4 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-medium"
             >
               Submit Review
             </button>
           </form>
-
-          {/* Reviews List */}
-          <div className="space-y-6">
-            {movie.reviews.map((review) => (
-              <div key={review.id} className="border-b pb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <h3 className="font-semibold mr-2">{review.user}</h3>
-                    <StarRating rating={review.rating} readonly />
-                  </div>
-                </div>
-                <p className="text-gray-400">{review.comment}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>

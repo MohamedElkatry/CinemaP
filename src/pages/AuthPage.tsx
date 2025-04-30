@@ -21,7 +21,7 @@ const AuthPage = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const from = (location.state as any)?.from || "/";
+  const from = (location.state as any)?.from || "/CinemaP/";
 
   const handleSubmit = async () => {
     setError(null);

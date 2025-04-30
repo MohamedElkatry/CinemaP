@@ -12,7 +12,7 @@ export default function MyTicketsPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: '/my-tickets' } });
+      navigate('/CinemaP/login', { state: { from: '/CinemaP/my-tickets' } });
     }
   }, [isAuthenticated, navigate]);
 

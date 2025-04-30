@@ -16,11 +16,11 @@ function App() {
           <div className="min-h-screen bg-gray-100">
             <Header />
             <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/movies/:id" element={<MovieDetailsPage />} />
-              <Route path="/movies/:id/seats" element={<SeatSelectionPage />} />
-              <Route path="/my-tickets" element={<MyTicketsPage />} />
-              <Route path="/login" element={<AuthPage />} />
+              <Route path="/CinemaP/" element={<HomePage />} />
+              <Route path="/CinemaP/movies/:id" element={<MovieDetailsPage />} />
+              <Route path="/CinemaP/movies/:id/seats" element={<SeatSelectionPage />} />
+              <Route path="/CinemaP/my-tickets" element={<MyTicketsPage />} />
+              <Route path="/CinemaP/login" element={<AuthPage />} />
               <Route path="*" element={<div className="text-center text-2xl">404 Not Found</div>} />
             </Routes>
           </div>

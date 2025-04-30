@@ -24,7 +24,7 @@ export default function SeatSelectionPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/movies/${id}/seats` } });
+      navigate('/CinemaP/login', { state: { from: `/CinemaP/movies/${id}/seats` } });
       return;
     }
 
@@ -46,7 +46,7 @@ export default function SeatSelectionPage() {
 
   const handleSeatSelect = (seatId: string) => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/movies/${id}/seats` } });
+      navigate('/CinemaP/login', { state: { from: `/CinemaP/movies/${id}/seats` } });
       return;
     }
 
@@ -81,7 +81,7 @@ export default function SeatSelectionPage() {
     };
 
     addBooking(booking);
-    navigate('/my-tickets');
+    navigate('/CinemaP/my-tickets');
   };
 
   if (!movie || !isAuthenticated) {
@@ -109,9 +109,17 @@ export default function SeatSelectionPage() {
                 return (
                   <span
                     key={seatId}
-                    className="px-3 py-1 bg-[#FFD700] text-[#1E3A8A] rounded-full text-sm"
+                    className="flex items-center gap-2 px-3 py-1 bg-[#FFD700] text-[#1E3A8A] rounded-full text-sm"
                   >
                     Row {seat?.row}, Seat {seat?.number}
+                    <button
+                      onClick={() => handleSeatSelect(seatId)}
+                      className="text-red-600 hover:text-red-800 font-bold"
+                      aria-label="Remove seat"
+                      title="Remove seat"
+                    >
+                      ×
+                    </button>
                   </span>
                 );
               })}
